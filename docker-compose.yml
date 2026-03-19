@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    container_name: postgres-container
+    env_file:
+      - ./server/.env
+    ports:
+      - "5433:5432"
+
+  backend:
+    build: ./server
+    container_name: django-container
+    command: sh -c "gunicorn bridgeboard_proj.wsgi --bind 0.0.0.0:8000 --reload"
+    env_file:
+      - ./server/.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./server:/app
+    depends_on:
+      - db
