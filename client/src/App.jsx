@@ -37,6 +37,8 @@ function App() {
                     {token ? (
                         <>
                             <Link to="/dashboard" className="hover:underline">Dashboard</Link>
+                            <Link to="/search" className="hover:underline">Search Jobs</Link>
+                            <Link to="/contacts" className="hover:underline">Contacts</Link>
                             <button onClick={logout} className="hover:underline">Logout</button>
                         </>
                     ) : (

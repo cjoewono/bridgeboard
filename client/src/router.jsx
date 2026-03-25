@@ -5,6 +5,8 @@ import LoginPage from "./pages/LoginPage"
 import RegisterPage from "./pages/RegisterPage"
 import DashboardPage from "./pages/DashboardPage"
 import JobDetailPage from "./pages/JobDetailPage"
+import ContactsPage from "./pages/ContactsPage"
+import JobSearchPage from "./pages/JobSearchPage"
 import NotFoundPage from "./pages/NotFoundPage"
 
 const router = createBrowserRouter([
@@ -17,6 +19,8 @@ const router = createBrowserRouter([
             { path: "register", element: <RegisterPage /> },
             { path: "dashboard", element: <DashboardPage /> },
             { path: "jobs/:jobId", element: <JobDetailPage /> },
+            { path: "contacts", element: <ContactsPage /> },
+            { path: "search", element: <JobSearchPage /> },
             { path: "*", element: <NotFoundPage /> },
         ],
     },
