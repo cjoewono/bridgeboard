@@ -51,7 +51,6 @@ class Info(UserView):
         user = request.user
         return Response({"token": user.auth_token.key, "email": user.email})
 
-
 class LogOut(UserView):
     def post(self, request):
         user = request.user
