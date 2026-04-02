@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { useOutletContext } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { useNavigate, useOutletContext } from "react-router-dom"
 import axios from "axios"
 
 const JobSearchPage = () => {
@@ -7,11 +7,14 @@ const JobSearchPage = () => {
     const [location, setLocation] = useState("")
     const [results, setResults] = useState([])
     const [loading, setLoading] = useState(false)
+    const [error, setError] = useState("")
     const { token } = useOutletContext()
+    const navigate = useNavigate()
 
     const searchJobs = async (event) => {
         event.preventDefault()
         setLoading(true)
+        setError("")
         try {
             const appId = import.meta.env.VITE_ADZUNA_APP_ID
             const appKey = import.meta.env.VITE_ADZUNA_APP_KEY
@@ -20,7 +23,7 @@ const JobSearchPage = () => {
             )
             setResults(response.data.results)
         } catch (err) {
-            console.error(err)
+            setError("Search failed. Please try again.")
         }
         setLoading(false)
     }
@@ -31,64 +34,100 @@ const JobSearchPage = () => {
                 company: job.company.display_name,
                 title: job.title
             }, {
-                headers: {
-                    Authorization: `Token ${token}`
-                }
+                headers: { Authorization: `Token ${token}` }
             })
             alert(`Saved: ${job.title} at ${job.company.display_name}`)
         } catch (err) {
-            console.error(err)
+            setError("Failed to save job.")
         }
     }
 
+    useEffect(() => {
+        if (!token) {
+            navigate("/login")
+        }
+    }, [token, navigate])
+
     return (
         <div>
-            <h1 className="text-2xl font-bold">Job Search</h1>
-            <p className="text-gray-600">Search jobs from Adzuna and save to your tracker</p>
+            <div className="mb-6">
+                <h1 className="text-2xl font-bold text-gray-900">Job Search</h1>
+                <p className="text-sm text-gray-500 mt-1">Search jobs from Adzuna and save to your tracker</p>
+            </div>
 
-            <form onSubmit={searchJobs} className="mt-4 flex gap-2 max-w-lg">
-                <input
-                    type="text"
-                    placeholder="Job title (e.g. Software Engineer)"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="border p-2 rounded flex-1"
-                    required
-                />
-                <input
-                    type="text"
-                    placeholder="Location (e.g. Seattle)"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    className="border p-2 rounded flex-1"
-                />
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
-                    Search
-                </button>
-            </form>
+            <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
+                <form onSubmit={searchJobs} className="flex gap-2">
+                    <input
+                        type="text"
+                        placeholder="Job title (e.g. Technical Program Manager)"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="border border-gray-300 p-2.5 rounded-lg text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                    />
+                    <input
+                        type="text"
+                        placeholder="Location (e.g. Seattle)"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                        className="border border-gray-300 p-2.5 rounded-lg text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                        type="submit"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                    >
+                        Search
+                    </button>
+                </form>
+                {error && (
+                    <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-3 py-2 rounded-lg mt-3">
+                        {error}
+                    </div>
+                )}
+            </div>
 
-            <div className="mt-6">
+            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                <div className="px-5 py-4 border-b border-gray-100">
+                    <h2 className="text-sm font-semibold text-gray-700">
+                        {results.length > 0 ? `${results.length} Results` : "Results"}
+                    </h2>
+                </div>
                 {loading ? (
-                    <p className="text-gray-600">Searching...</p>
+                    <div className="px-5 py-8 text-center text-gray-400 text-sm">Searching...</div>
                 ) : results.length === 0 ? (
-                    <p className="text-gray-600">No results yet. Try a search!</p>
+                    <div className="px-5 py-8 text-center text-gray-400 text-sm">
+                        No results yet. Try a search above.
+                    </div>
                 ) : (
                     results.map((job) => (
-                        <div key={job.id} className="border p-4 rounded mb-2">
-                            <div className="flex justify-between items-start">
+                        <div key={job.id} className="flex justify-between items-start px-5 py-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+                            <div className="flex items-start gap-4">
+                                <div className="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center text-green-600 font-bold text-sm flex-shrink-0">
+                                    {job.company.display_name.charAt(0).toUpperCase()}
+                                </div>
                                 <div>
-                                    <h2 className="font-bold">{job.title}</h2>
-                                    <p className="text-gray-600">{job.company.display_name}</p>
-                                    <p className="text-sm text-gray-500">{job.location.display_name}</p>
-                                    <p className="text-sm text-gray-400 mt-2 line-clamp-2">{job.description}</p>
-                                    <a href={job.redirect_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm hover:underline">
-                                        View on Adzuna
+                                    <p className="font-semibold text-gray-900 text-sm">{job.title}</p>
+                                    <p className="text-xs text-gray-500 mt-0.5">{job.company.display_name}</p>
+                                    <p className="text-xs text-gray-400 mt-0.5">{job.location.display_name}</p>
+                                    <p className="text-xs text-gray-400 mt-1.5 line-clamp-2 max-w-xl">{job.description}</p>
+                                    
+                                    {/* FIX APPLIED HERE: Restored the opening <a tag */}
+                                    <a
+                                        href={job.redirect_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-xs text-blue-600 hover:underline mt-1 inline-block"
+                                    >
+                                        View on Adzuna →
                                     </a>
                                 </div>
-                                <button onClick={() => saveJob(job)} className="bg-green-600 text-white px-3 py-1 rounded text-sm">
-                                    Save
-                                </button>
                             </div>
+                            <button
+                                onClick={() => saveJob(job)}
+                                className="bg-green-50 hover:bg-green-100 text-green-700 text-xs px-3 py-1.5 rounded-lg font-medium transition-colors flex-shrink-0"
+                            >
+                                + Save
+                            </button>
                         </div>
                     ))
                 )}
