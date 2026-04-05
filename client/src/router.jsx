@@ -8,6 +8,7 @@ import JobDetailPage from "./pages/JobDetailPage"
 import ContactsPage from "./pages/ContactsPage"
 import JobSearchPage from "./pages/JobSearchPage"
 import NotFoundPage from "./pages/NotFoundPage"
+import TranslatorPage from "./pages/TranslatorPage"
 
 const router = createBrowserRouter([
     {
@@ -21,6 +22,7 @@ const router = createBrowserRouter([
             { path: "jobs/:jobId", element: <JobDetailPage /> },
             { path: "contacts", element: <ContactsPage /> },
             { path: "search", element: <JobSearchPage /> },
+            { path: "translator", element: <TranslatorPage /> },
             { path: "*", element: <NotFoundPage /> },
         ],
     },

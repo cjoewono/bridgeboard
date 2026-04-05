@@ -29,4 +29,5 @@ urlpatterns = [
     path('api/v1/tasks/', include('task_app.urls')),
     path('api/v1/notes/', include('note_app.urls')),
     path('api/v1/contacts/', include('contact_app.urls')),
+    path('api/v1/', include('translate_app.urls')),
 ]

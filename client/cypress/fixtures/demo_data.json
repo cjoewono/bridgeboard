@@ -1,0 +1,18 @@
+{
+  "job": {
+    "id": 1,
+    "company": "Lockheed Martin",
+    "title": "Systems Engineer",
+    "status": "applied",
+    "user": 1
+  },
+  "translation": {
+    "branch": "Army",
+    "code": "11B",
+    "military_title": "Infantryman",
+    "summary": "Leads and executes ground combat operations. Highly transferable leadership and logistics skills.",
+    "civilian_job_titles": ["Security Manager", "Operations Analyst", "Logistics Coordinator"],
+    "transferable_skills": ["Team Leadership", "Risk Assessment", "Physical Security", "Mission Planning"],
+    "suggested_keywords": ["operations", "leadership", "security", "logistics"]
+  }
+}

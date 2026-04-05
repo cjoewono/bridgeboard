@@ -8,7 +8,7 @@ const DashboardPage = () => {
     const [company, setCompany] = useState("")
     const [title, setTitle] = useState("")
     const [error, setError] = useState("")
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
     const { token, user } = useOutletContext()
     const navigate = useNavigate()
 
@@ -23,7 +23,7 @@ const DashboardPage = () => {
     const fetchJobs = async () => {
         setLoading(true)
         try {
-            let response = await axios.get("http://127.0.0.1:8000/api/v1/jobs/", {
+            let response = await axios.get("/api/v1/jobs/", {
                 headers: { Authorization: `Token ${token}` }
             })
             setJobs(response.data)
@@ -36,7 +36,7 @@ const DashboardPage = () => {
     const addJob = async (event) => {
         event.preventDefault()
         try {
-            let response = await axios.post("http://127.0.0.1:8000/api/v1/jobs/", {
+            let response = await axios.post("/api/v1/jobs/", {
                 company: company,
                 title: title
             }, {
@@ -52,7 +52,7 @@ const DashboardPage = () => {
 
     const deleteJob = async (jobId) => {
         try {
-            await axios.delete(`http://127.0.0.1:8000/api/v1/jobs/${jobId}/`, {
+            await axios.delete(`/api/v1/jobs/${jobId}/`, {
                 headers: { Authorization: `Token ${token}` }
             })
             setJobs(jobs.filter(job => job.id !== jobId))
@@ -63,7 +63,7 @@ const DashboardPage = () => {
 
     const updateStatus = async (jobId, newStatus) => {
         try {
-            let response = await axios.put(`http://127.0.0.1:8000/api/v1/jobs/${jobId}/`, {
+            let response = await axios.put(`/api/v1/jobs/${jobId}/`, {
                 status: newStatus
             }, {
                 headers: { Authorization: `Token ${token}` }
@@ -77,95 +77,106 @@ const DashboardPage = () => {
     }
 
     const getStatusBadge = (status) => {
-    const styles = {
-        saved: "bg-gray-100 text-gray-700",
-        applied: "bg-blue-100 text-blue-700",
-        interviewing: "bg-yellow-100 text-yellow-700",
-        offer: "bg-green-100 text-green-700",
-        rejected: "bg-red-100 text-red-700",
+        const styles = {
+            saved:        "bg-slate-100 text-slate-600",
+            applied:      "bg-blue-50 text-blue-700",
+            interviewing: "bg-amber-50 text-amber-700",
+            offer:        "bg-emerald-50 text-emerald-700",
+            rejected:     "bg-red-50 text-red-600",
+        }
+        return styles[status] || "bg-slate-100 text-slate-600"
     }
-    return styles[status] || "bg-gray-100 text-gray-700"
-    }
-    
+
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-                    {user && <p className="text-sm text-gray-500 mt-1">Welcome back, {user}</p>}
-                </div>
+        <div className="min-h-screen bg-slate-50 px-6 py-10">
+        <div className="max-w-5xl mx-auto">
+            <div className="mb-10 border-l-4 border-blue-600 pl-5">
+                <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2">Dashboard</h1>
+                {user
+                    ? <p className="text-slate-500 text-base leading-relaxed">Welcome back, <span className="text-blue-600 font-bold">{user}</span></p>
+                    : <p className="text-slate-500 text-base leading-relaxed">Mission control for your civilian career.</p>
+                }
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-                {[
-                    { label: "Total", value: jobs.length, color: "text-gray-900" },
-                    { label: "Saved", value: jobs.filter(j => j.status === "saved").length, color: "text-gray-600" },
-                    { label: "Applied", value: jobs.filter(j => j.status === "applied").length, color: "text-blue-600" },
-                    { label: "Interviewing", value: jobs.filter(j => j.status === "interviewing").length, color: "text-yellow-600" },
-                    { label: "Offers", value: jobs.filter(j => j.status === "offer").length, color: "text-green-600" },
-                ].map((stat) => (
-                    <div key={stat.label} className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-                        <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-                        <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
-                    </div>
-                ))}
+                {loading ? (
+                    Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="bg-white border border-slate-100 rounded-2xl shadow-sm p-4 text-center animate-pulse">
+                            <div className="h-8 bg-slate-100 rounded-lg mx-auto w-10 mb-2" />
+                            <div className="h-3 bg-slate-100 rounded mx-auto w-16" />
+                        </div>
+                    ))
+                ) : (
+                    [
+                        { label: "Total",        value: jobs.length,                                          color: "text-slate-900" },
+                        { label: "Saved",        value: jobs.filter(j => j.status === "saved").length,        color: "text-slate-500" },
+                        { label: "Applied",      value: jobs.filter(j => j.status === "applied").length,      color: "text-blue-600" },
+                        { label: "Interviewing", value: jobs.filter(j => j.status === "interviewing").length, color: "text-amber-600" },
+                        { label: "Offers",       value: jobs.filter(j => j.status === "offer").length,        color: "text-emerald-600" },
+                    ].map((stat) => (
+                        <div key={stat.label} className="bg-white border border-slate-100 rounded-2xl shadow-sm p-4 text-center">
+                            <p className={`text-3xl font-black ${stat.color}`}>{stat.value}</p>
+                            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mt-1">{stat.label}</p>
+                        </div>
+                    ))
+                )}
             </div>
 
-            <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
-                <h2 className="text-sm font-semibold text-gray-700 mb-3">Add New Application</h2>
+            <div className="bg-white border border-slate-100 rounded-2xl shadow-sm p-5 mb-6">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4">Add New Application</h2>
                 <form onSubmit={addJob} className="flex gap-2">
                     <input
                         type="text"
                         placeholder="Company"
                         value={company}
                         onChange={(e) => setCompany(e.target.value)}
-                        className="border border-gray-300 p-2.5 rounded-lg text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="border border-slate-200 px-4 py-3 rounded-xl text-sm flex-1 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
                     <input
                         type="text"
                         placeholder="Job Title"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        className="border border-gray-300 p-2.5 rounded-lg text-sm flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="border border-slate-200 px-4 py-3 rounded-xl text-sm flex-1 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
                     <button
                         type="submit"
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-blue-100 hover:-translate-y-0.5 active:scale-95"
                     >
                         Add Job
                     </button>
                 </form>
                 {error && (
-                    <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-3 py-2 rounded-lg mt-3">
+                    <div className="bg-red-50 border border-red-100 text-red-600 text-sm font-semibold px-4 py-3 rounded-xl mt-3">
                         {error}
                     </div>
                 )}
             </div>
 
-            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-                <div className="px-5 py-4 border-b border-gray-100">
-                    <h2 className="text-sm font-semibold text-gray-700">Applications</h2>
+            <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
+                <div className="px-5 py-4 border-b border-slate-100">
+                    <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">Applications</h2>
                 </div>
                 {loading ? (
-                    <div className="px-5 py-8 text-center text-gray-400 text-sm">Loading...</div>
+                    <div className="px-5 py-8 text-center text-slate-400 text-sm font-semibold">Loading...</div>
                 ) : jobs.length === 0 ? (
-                    <div className="px-5 py-8 text-center text-gray-400 text-sm">
+                    <div className="px-5 py-8 text-center text-slate-400 text-sm font-semibold">
                         No applications yet. Add your first job above.
                     </div>
                 ) : (
                     jobs.map((job) => (
-                        <div key={job.id} className="flex justify-between items-center px-5 py-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+                        <div key={job.id} className="flex justify-between items-center px-5 py-4 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
                             <div className="flex items-center gap-4">
-                                <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-sm flex-shrink-0">
+                                <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-black text-sm flex-shrink-0">
                                     {job.company.charAt(0).toUpperCase()}
                                 </div>
                                 <div>
-                                    <Link to={`/jobs/${job.id}`} className="font-semibold text-gray-900 hover:text-blue-600 transition-colors text-sm">
+                                    <Link to={`/jobs/${job.id}`} className="font-black text-slate-900 hover:text-blue-600 transition-colors text-sm">
                                         {job.company}
                                     </Link>
-                                    <p className="text-xs text-gray-500 mt-0.5">{job.title}</p>
+                                    <p className="text-xs text-slate-500 font-semibold mt-0.5">{job.title}</p>
                                 </div>
-                                <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${getStatusBadge(job.status)}`}>
+                                <span className={`text-xs font-bold px-2.5 py-1 rounded-lg uppercase tracking-wide ${getStatusBadge(job.status)}`}>
                                     {job.status}
                                 </span>
                             </div>
@@ -173,7 +184,7 @@ const DashboardPage = () => {
                                 <select
                                     value={job.status}
                                     onChange={(e) => updateStatus(job.id, e.target.value)}
-                                    className="border border-gray-300 p-1.5 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="border border-slate-200 px-2 py-1.5 rounded-xl text-xs text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                 >
                                     <option value="saved">Saved</option>
                                     <option value="applied">Applied</option>
@@ -183,7 +194,7 @@ const DashboardPage = () => {
                                 </select>
                                 <button
                                     onClick={() => deleteJob(job.id)}
-                                    className="text-red-400 hover:text-red-600 text-xs px-2 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                                    className="text-slate-300 hover:text-red-500 text-xs px-2 py-1.5 rounded-lg hover:bg-red-50 transition-colors font-bold"
                                 >
                                     Delete
                                 </button>
@@ -192,6 +203,7 @@ const DashboardPage = () => {
                     ))
                 )}
             </div>
+        </div>
         </div>
     )
 }

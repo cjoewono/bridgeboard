@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'job_app',
     'task_app',
     'note_app',
+    'translate_app',
     'contact_app',
 ]
 
@@ -38,6 +39,15 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
 
 ROOT_URLCONF = 'bridgeboard_proj.urls'
 

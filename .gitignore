@@ -1,4 +1,3 @@
-# Python / Django
 __pycache__/
 *.py[cod]
 *.pyo
@@ -12,26 +11,20 @@ db.sqlite3
 *.log
 staticfiles/
 media/
-
-# Environment variables
 .env
 *.env.local
-
-# Node / React
 node_modules/
 npm-debug.log*
 yarn-debug.log*
-
-# Vite build
 dist/
-
-# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-
-# OS
 .DS_Store
 Thumbs.db
+.claude/
+CLAUDE.md
+*.xml
+.claudeignore

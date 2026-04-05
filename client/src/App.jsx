@@ -1,10 +1,37 @@
-import { useState, useEffect } from "react"
-import { Outlet, Link } from "react-router-dom"
+import { useState, useEffect, useRef } from "react"
+import { Outlet, Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 
 function App() {
     const [token, setToken] = useState(localStorage.getItem("token"))
     const [user, setUser] = useState(localStorage.getItem("user"))
+    const [translatorState, setTranslatorState] = useState({ query: "", selectedBranch: "", result: null })
+    const [jobSearchState, setJobSearchState] = useState({ searchTerm: "", location: "", results: [], totalCount: 0, page: 1, lastSearch: { what: "", where: "" } })
+    const navigate = useNavigate()
+    const interceptorRef = useRef(null)
+
+    const clearSession = () => {
+        setToken(null)
+        setUser(null)
+        localStorage.removeItem("token")
+        localStorage.removeItem("user")
+    }
+
+    useEffect(() => {
+        interceptorRef.current = axios.interceptors.response.use(
+            (response) => response,
+            (error) => {
+                if (error.response?.status === 401) {
+                    clearSession()
+                    navigate("/login")
+                }
+                return Promise.reject(error)
+            }
+        )
+        return () => {
+            axios.interceptors.response.eject(interceptorRef.current)
+        }
+    }, [navigate])
 
     const login = (tokenValue, userEmail) => {
         setToken(tokenValue)
@@ -15,7 +42,7 @@ function App() {
 
     const logout = async () => {
         try {
-            await axios.post("http://127.0.0.1:8000/api/v1/users/logout/", {}, {
+            await axios.post("/api/v1/users/logout/", {}, {
                 headers: {
                     Authorization: `Token ${token}`
                 }
@@ -23,48 +50,67 @@ function App() {
         } catch (err) {
             console.error(err)
         }
-        setToken(null)
-        setUser(null)
-        localStorage.removeItem("token")
-        localStorage.removeItem("user")
+        clearSession()
+        navigate("/login")
     }
 
     return (
-    <div className="min-h-screen bg-gray-50">
-        <nav className="bg-white border-b border-gray-200 px-6 py-4">
-            <div className="max-w-6xl mx-auto flex justify-between items-center">
-                <Link to="/" className="text-xl font-bold text-blue-600 tracking-tight">
-                    BridgeBoard
-                </Link>
-                <div className="flex items-center gap-6">
-                    {token ? (
-                        <>
-                            <Link to="/dashboard" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Dashboard</Link>
-                            <Link to="/search" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Search Jobs</Link>
-                            <Link to="/contacts" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Contacts</Link>
-                            <button
-                                onClick={logout}
-                                className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors"
-                            >
-                                Logout
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <Link to="/login" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Login</Link>
-                            <Link to="/register" className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
-                                Get Started
-                            </Link>
-                        </>
-                    )}
+        <div className="min-h-screen bg-white">
+            <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4">
+                <div className="max-w-7xl mx-auto flex justify-between items-center">
+                    
+                    <Link 
+                        to="/" 
+                        className="text-2xl font-black text-slate-900 tracking-tighter hover:text-blue-600 transition-colors"
+                    >
+                        <span className="text-blue-600">Bridge</span>
+                        <span className="text-slate-900">Board</span>
+                    </Link>
+
+                    <div className="flex items-center gap-8">
+                        {token ? (
+                            <>
+                                <Link to="/dashboard" className="text-sm font-bold text-slate-500 hover:text-blue-600 transition-all uppercase tracking-widest">
+                                    Dashboard
+                                </Link>
+                                <Link to="/search" className="text-sm font-bold text-slate-500 hover:text-blue-600 transition-all uppercase tracking-widest">
+                                    Search Jobs
+                                </Link>
+                                <Link to="/translator" className="text-sm font-bold text-slate-500 hover:text-blue-600 transition-all uppercase tracking-widest">
+                                    MOS Translator
+                                </Link>
+                                <Link to="/contacts" className="text-sm font-bold text-slate-500 hover:text-blue-600 transition-all uppercase tracking-widest">
+                                    Contacts
+                                </Link>
+                                <button
+                                    onClick={logout}
+                                    className="text-sm font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-2.5 rounded-xl transition-all active:scale-95"
+                                >
+                                    Logout
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <Link to="/login" className="text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors uppercase tracking-widest">
+                                    Login
+                                </Link>
+                                <Link 
+                                    to="/register" 
+                                    className="text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl shadow-lg shadow-blue-100 transition-all hover:-translate-y-0.5 active:scale-95"
+                                >
+                                    Get Started
+                                </Link>
+                            </>
+                        )}
+                    </div>
                 </div>
-            </div>
-        </nav>
-        <main className="max-w-6xl mx-auto px-6 py-8">
-            <Outlet context={{ token, user, login, logout }} />
-        </main>
-    </div>
-    )
+            </nav>
+
+            <main>
+                <Outlet context={{ token, user, login, logout, translatorState, setTranslatorState, jobSearchState, setJobSearchState }} />
+            </main>
+        </div>
+    );
 }
 
 export default App
