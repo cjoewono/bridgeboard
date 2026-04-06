@@ -68,6 +68,7 @@ bridgeboard/
     ├── note_app/
     ├── contact_app/
     └── translate_app/
+```
 
 How to Guide:
 How to Clone and Run BridgeBoard Locally
