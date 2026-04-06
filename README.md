@@ -39,13 +39,11 @@ Solution: Switched to Adzuna, which has a free tier, immediate API key access, r
 -Container restart not picking up env_file changes. docker-compose restart reuses the existing container environment and does not reload env_file. This caused debugging sessions where environment variable changes appeared to have no effect. Solution: Established the correct pattern — docker-compose down && docker-compose up --build — as the only reliable way to ensure a clean environment reload.
 
 Breakdown:
+```text
 bridgeboard/
-│
 ├── docker-compose.yml
-│
 ├── nginx/
 │   └── default.conf
-│
 ├── client/
 │   ├── Dockerfile
 │   ├── package.json
@@ -58,69 +56,18 @@ bridgeboard/
 │       ├── App.jsx
 │       ├── index.css
 │       └── pages/
-│           ├── HomePage.jsx
-│           ├── LoginPage.jsx
-│           ├── RegisterPage.jsx
-│           ├── DashboardPage.jsx
-│           ├── JobDetailPage.jsx
-│           ├── ContactsPage.jsx
-│           ├── JobSearchPage.jsx
-│           ├── TranslatorPage.jsx
-│           └── NotFoundPage.jsx
-│
 └── server/
     ├── Dockerfile
     ├── requirements.txt
     ├── manage.py
     ├── .env
-    │
     ├── bridgeboard_proj/
-    │   ├── __init__.py
-    │   ├── settings.py
-    │   ├── urls.py
-    │   ├── wsgi.py
-    │   └── asgi.py
-    │
     ├── user_app/
-    │   ├── models.py
-    │   ├── serializers.py
-    │   ├── views.py
-    │   ├── urls.py
-    │   └── apps.py
-    │
     ├── job_app/
-    │   ├── models.py
-    │   ├── serializers.py
-    │   ├── views.py
-    │   ├── urls.py
-    │   └── apps.py
-    │
     ├── task_app/
-    │   ├── models.py
-    │   ├── serializers.py
-    │   ├── views.py
-    │   ├── urls.py
-    │   └── apps.py
-    │
     ├── note_app/
-    │   ├── models.py
-    │   ├── serializers.py
-    │   ├── views.py
-    │   ├── urls.py
-    │   └── apps.py
-    │
     ├── contact_app/
-    │   ├── models.py
-    │   ├── serializers.py
-    │   ├── views.py
-    │   ├── urls.py
-    │   └── apps.py
-    │
     └── translate_app/
-        ├── models.py
-        ├── views.py
-        ├── urls.py
-        └── apps.py
 
 How to Guide:
 How to Clone and Run BridgeBoard Locally
