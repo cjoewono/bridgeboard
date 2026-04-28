@@ -1,4 +1,7 @@
 BridgeBoard - Military-to-Civilian Career Transition Tracker
+
+🌐 Live Demo: https://cjoewono.github.io/bridgeboard/
+
 Overview
 BridgeBoard is a full-stack web application purpose-built for transitioning military service members navigating the civilian job market. It provides a centralized, tactical dashboard to manage job applications, tasks, interview notes, and networking contacts
 
@@ -31,7 +34,7 @@ Challenges & Solutions:
 -Nginx not proxying API requests. The frontend was calling http://127.0.0.1:8000 directly, bypassing Nginx entirely. Solution: Changed all axios calls to relative paths (/api/v1/...) so requests route through Nginx, which proxies to the Django container.
 -Adzuna initially planned as LinkedIn Jobs API. The initial plan was to use the LinkedIn Jobs API for job search. LinkedIn requires partner approval with a multi-week wait time, making it unsuitable for a project timeline.
 Solution: Switched to Adzuna, which has a free tier, immediate API key access, real job listings, and a simple REST API that uses the same axios pattern already established in the project.
--Adzuna keys exposed in frontend. Initial implementation stored ADZUNA_APP_ID and ADZUNA_APP_KEY in the React frontend via VITE_* environment variables, making them visible in the browser. Solution: Moved keys to server/.env and built a Django proxy view (JobSearchView) that injects the keys server-side before forwarding to Adzuna. Frontend never sees the keys.
+-Adzuna keys exposed in frontend. Initial implementation stored ADZUNA*APP_ID and ADZUNA_APP_KEY in the React frontend via VITE*\* environment variables, making them visible in the browser. Solution: Moved keys to server/.env and built a Django proxy view (JobSearchView) that injects the keys server-side before forwarding to Adzuna. Frontend never sees the keys.
 -authtoken_token relation does not exist. After a docker-compose down && up, all requests returned a ProgrammingError: relation "authtoken_token" does not exist because the Postgres volume was wiped and migrations hadn't been re-run. Solution (immediate): docker exec django-container python manage.py migrate.
 -ModuleNotFoundError: No module named 'dotenv'. After adding from dotenv import load_dotenv to translate_app/views.py, the container crashed on startup because python-dotenv wasn't in requirements.txt. Solution: Added python-dotenv==1.2.2 to requirements.txt and rebuilt the image with docker-compose up --build backend
 -Gemini response returning HTML instead of JSON. The translator frontend was receiving <html>... and throwing Unexpected token '<'... is not valid JSON. This meant the API request was hitting Nginx's SPA fallback instead of reaching Django. Root cause: The backend container was crashing on import due to the missing dotenv module, so Nginx had no backend to proxy to and returned index.html instead. Solution: Resolved by fixing dotenv dependency, then rebuilding and re-running migrations.
@@ -39,6 +42,7 @@ Solution: Switched to Adzuna, which has a free tier, immediate API key access, r
 -Container restart not picking up env_file changes. docker-compose restart reuses the existing container environment and does not reload env_file. This caused debugging sessions where environment variable changes appeared to have no effect. Solution: Established the correct pattern — docker-compose down && docker-compose up --build — as the only reliable way to ensure a clean environment reload.
 
 Breakdown:
+
 ```text
 bridgeboard/
 ├── docker-compose.yml
@@ -87,7 +91,7 @@ Sign in with a Google account
 Click Get API key in the top navigation
 Click Create API key
 Copy the key — it starts with AIzaSy...
-Free tier is sufficient. No billing required for development usage. 
+Free tier is sufficient. No billing required for development usage.
 NOTE: During the MOS translator operation, you may encounter a high demand error and unable to retrieve. Re-try again until results pop up.
 
 Adzuna API Keys (for Job Search)
@@ -136,7 +140,7 @@ docker-compose up --build -d
 
 Step 6 — Verify Everything Started Correctly
 Check that migrations ran and gunicorn is running:
-docker logs django-container 
+docker logs django-container
 
 Check all three containers are running:
 docker ps
